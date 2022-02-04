@@ -32,6 +32,22 @@ app.get("/statement", verifyIfExistsAccountCpf, (req, res) => {
   return res.status(200).json(customer.statements);
 });
 
+app.post("/deposit", verifyIfExistsAccountCpf, (req, res) => {
+  const { description, amount } = req.body;
+  const { customer } = req;
+
+  const statementOperation = {
+    description,
+    amount,
+    createdAt: new Date(),
+    type: "credit",
+  };
+
+  customer.statements.push(statementOperation);
+
+  return res.status(201).send();
+});
+
 function verifyIfExistsAccountCpf(req, res, next) {
   const { cpf } = req.headers;
   const customer = customers.find((customer) => customer.cpf === cpf);
