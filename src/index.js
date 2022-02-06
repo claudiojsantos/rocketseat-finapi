@@ -48,6 +48,39 @@ app.post("/deposit", verifyIfExistsAccountCpf, (req, res) => {
   return res.status(201).send();
 });
 
+app.post("/withdraw", verifyIfExistsAccountCpf, (req, res) => {
+  const { amount } = req.body;
+  const { customer } = req;
+
+  const balance = getBalance(customer.statements);
+
+  if (balance < amount) {
+    return res.status(400).json({ error: "Insificient funds!!!" });
+  }
+
+  const statementOperation = {
+    amount,
+    createdAt: new Date(),
+    type: "debit",
+  };
+
+  customer.statements.push(statementOperation);
+
+  return res.send(201).send();
+});
+
+function getBalance(statement) {
+  const balance = statement.reduce((acc, operation) => {
+    if (operation.type === "credit") {
+      return acc + operation.amount;
+    } else {
+      return acc - operation.amount;
+    }
+  }, 0);
+
+  return balance;
+}
+
 function verifyIfExistsAccountCpf(req, res, next) {
   const { cpf } = req.headers;
   const customer = customers.find((customer) => customer.cpf === cpf);
