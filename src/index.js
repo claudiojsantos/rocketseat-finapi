@@ -83,6 +83,21 @@ app.post("/withdraw", verifyIfExistsAccountCpf, (req, res) => {
   return res.send(201).send();
 });
 
+app.put("/account", verifyIfExistsAccountCpf, (req, res) => {
+  const { name } = req.body;
+  const { customer } = req;
+
+  customer.name = name;
+
+  return res.status(204).json();
+});
+
+app.get("/account", verifyIfExistsAccountCpf, (req, res) => {
+  const { customer } = req;
+
+  return res.json(customer);
+});
+
 function getBalance(statement) {
   const balance = statement.reduce((acc, operation) => {
     if (operation.type === "credit") {
